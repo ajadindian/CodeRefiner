@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+    
+    environment {
+        REPO_PATH = "/var/lib/jenkins/workspace/GCRTest@2"
+		    PYTHON_PATH = "/usr/bin/python3"
+		    PYTEST_PATH = "/usr/bin/pytest"
+		    PATH = "/usr/share/maven/bin/mvn:$PATH"             
+        CLIENT_NAME = "Sample Application"
+    }
+    
+    stages {
+        stage('Stage 1: Clone Repository') {
+            steps {
+                echo "Client Name: ${env.CLIENT_NAME}"
+                ws("${env.REPO_PATH}") {
+                    git branch: 'main', credentialsId: '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', url: 'https://github.com/ajadindian/CodeRefiner.git'
+                    sh "chmod -R 777 ${WORKSPACE}"
+                }
+            }
+        }
+        stage('Stage 2: Track Server Emissions') {
+            steps {
+                dir("${env.REPO_PATH}") {
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        sh "${env.PYTHON_PATH} server_emissions.py"
+                    }
+                }
+            }
+        }
+        stage('Stage 3: Green Code Refiner') {
+            steps {
+                dir("${env.REPO_PATH}") {
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        sh "${env.PYTHON_PATH} GreenCodeRefiner.py"
+                    }
+                }
+            }
+        }
+        stage('Stage 4: Dynamic Code Analysis') {
+            steps {
+                dir("${env.REPO_PATH}") {
+                    withEnv(["PYTEST=${env.PYTEST_PATH}"]) {
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                            sh "${env.PYTHON_PATH} track_emissions.py"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
