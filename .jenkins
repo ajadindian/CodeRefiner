@@ -2,7 +2,7 @@ pipeline {
     agent any
     
     environment {
-        REPO_PATH = "/var/lib/jenkins/workspace/GCRTest@2"
+        REPO_PATH = "/var/lib/jenkins/workspace/CodeRefiner@2"
 		    PYTHON_PATH = "/usr/bin/python3"
 		    PYTEST_PATH = "/usr/bin/pytest"
 		    PATH = "/usr/share/maven/bin/mvn:$PATH"             
