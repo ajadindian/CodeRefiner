@@ -343,81 +343,7 @@
                 text-align: center;
                 gap: 0.5rem;
             }
-        } 
-               /* Add new styles for masonry layout */
-               .server-name {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 2rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--text-color);
-        }
-
-        .graph-container {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 2rem;
-            box-shadow: var(--shadow);
-            margin-bottom: 2rem;
-            height: 400px;
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            color: var(--text-color);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .info-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            transition: transform 0.2s ease;
-        }
-
-        .info-card:hover {
-            transform: translateY(-2px);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .card-title {
-            font-size: 0.875rem;
-            color: var(--text-light);
-            font-weight: 500;
-        }
-
-        .card-value {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--text-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .card-subvalue {
-            font-size: 0.875rem;
-            color: var(--text-light);
-        }
-       
+        }        
     </style>
 </head>
 <body>
@@ -433,7 +359,7 @@
             </div>
             <nav>
                 <ul>
-                    <li><a href="details_template.html">View Detailed Report</a></li>
+                    <li><a href="server_report.html">View Server Report</a></li>
                     <li><a href="emissions_report.html">Back to Main Report</a></li>
                 </ul>
             </nav>
@@ -443,219 +369,149 @@
     <div class="content">
         <div class="dropdown-container">
             <label for="solutionDirSelect">
-                <i class="fas fa-server"></i>
+                <i class="fas fa-folder-open"></i>
                 Select Server
             </label>
             <select id="solutionDirSelect">
                 <option value="" disabled selected>-- Select Server --</option>
-                {% for server in unique_servers %}
-                    <option value="{{ server }}">{{ server }}</option>
+                {% for ser in unique_servers %}
+                    <option value="{{ dir }}">{{ ser }}</option>
                 {% endfor %}
             </select>
         </div>
-        <div style="background: #f0f0f0; padding: 10px; margin: 10px; display: none;" id="debugInfo">
-            <h3>Debug Information</h3>
-            <pre id="debugData"></pre>
+        
+        <div class="tables-container">
+            <div class="table-box" id="beforeTableBox" style="display: none;">
+                <h2>
+                    <i class="fas fa-history"></i>
+                    Before Refinement
+                </h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Application Name</th>
+                            <th>File Type</th>
+                            <th>Duration (s)</th>
+                            <th>Emissions (gCO2eq)</th>
+                            <th>Energy Consumed (Wh)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in before_details %}
+                            <tr>
+                                <td>{{ row['Application name'] }}</td>
+                                <td>{{ row['File Type'] }}</td>
+                                <td>{{ row['Duration'] }}</td>
+                                <td>{{ row['Emissions (gCO2eq)'] }}</td>
+                                <td>{{ row['Energy Consumed (Wh)'] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="table-box" id="afterTableBox" style="display: none;">
+                <h2>
+                    <i class="fas fa-check-circle"></i>
+                    After Refinement
+                </h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Application Name</th>
+                            <th>File Type</th>
+                            <th>Duration (s)</th>
+                            <th>Emissions (gCO2eq)</th>
+                            <th>Energy Consumed (Wh)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in after_details %}
+                            <tr>
+                                <td>{{ row['Application name'] }}</td>
+                                <td>{{ row['File Type'] }}</td>
+                                <td>{{ row['Duration'] }}</td>
+                                <td>{{ row['Emissions (gCO2eq)'] }}</td>
+                                <td>{{ row['Energy Consumed (Wh)'] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
         
-        <div id="serverDetails" style="display: none;">
-            <!-- Server Name -->
-            <div class="server-name">
-                <i class="fas fa-server"></i>
-                <span id="selectedServerName">Server Name</span>
-            </div>
-
-            <!-- Operating System Section -->
-            <div class="section-title">
-                <i class="fas fa-desktop"></i>
-                Operating System
-            </div>
-            <div class="grid-container">
-                <div class="info-card">
-                    <div class="card-header">
-                        <span class="card-title">OS Version</span>
-                        <i class="fas fa-microchip"></i>
-                    </div>
-                    <div class="card-value" id="osVersion"></div>
-                </div>
-                <div class="info-card">
-                    <div class="card-header">
-                        <span class="card-title">OS Type</span>
-                        <i class="fas fa-laptop-code"></i>
-                    </div>
-                    <div class="card-value" id="osType"></div>
-                </div>
-                <div class="info-card">
-                    <div class="card-header">
-                        <span class="card-title">Region</span>
-                        <i class="fas fa-globe"></i>
-                    </div>
-                    <div class="card-value" id="region"></div>
-                </div>
-            </div>
-
-            <!-- Server Information Section -->
-            <div class="section-title">
-                <i class="fas fa-server"></i>
-                Server Information
-            </div>
-            <div class="grid-container">
-                <div class="info-card">
-                    <div class="card-header">
-                        <span class="card-title">Total CO2 Emissions</span>
-                        <i class="fas fa-cloud"></i>
-                    </div>
-                    <div class="card-value" id="totalCO2"></div>
-                    <div class="card-subvalue" id="cpuCO2"></div>
-                </div>
-                <div class="info-card">
-                    <div class="card-header">
-                        <span class="card-title">RAM CO2 Emissions</span>
-                        <i class="fas fa-bolt"></i>
-                    </div>
-                    <div class="card-value" id="ramCO2"></div>
-                    <div class="card-subvalue" id="co2Factor"></div>
-                </div>
-                <div class="info-card">
-                    <div class="card-header">
-                        <span class="card-title">Total RAM</span>
-                        <i class="fas fa-memory"></i>
-                    </div>
-                    <div class="card-value" id="ramTotal"></div>
-                    <div class="card-subvalue" id="ramUsage"></div>
-                </div>
-                <div class="info-card">
-                    <div class="card-header">
-                        <span class="card-title">Total Power</span>
-                        <i class="fas fa-battery-full"></i>
-                    </div>
-                    <div class="card-value" id="totalPower"></div>
-                    <div class="card-subvalue" id="powerDetails"></div>
-                </div>
-            </div>
-
-            <!-- Disk Information Section -->
-            <div class="section-title">
-                <i class="fas fa-hdd"></i>
-                Disk Information
-            </div>
-            <div class="grid-container">
-                <div class="info-card">
-                    <div class="card-header">
-                        <span class="card-title">Total Disk Read</span>
-                        <i class="fas fa-hdd"></i>
-                    </div>
-                    <div class="card-value" id="diskRead"></div>
-                </div>
-                <div class="info-card">
-                    <div class="card-header">
-                        <span class="card-title">Total Disk Write</span>
-                        <i class="fas fa-hdd"></i>
-                    </div>
-                    <div class="card-value" id="diskWrite"></div>
-                </div>
-                <div class="info-card">
-                    <div class="card-header">
-                        <span class="card-title">Disk Base CO2</span>
-                        <i class="fas fa-cloud"></i>
-                    </div>
-                    <div class="card-value" id="diskBaseCO2"></div>
-                </div>
-                <div class="info-card">
-                    <div class="card-header">
-                        <span class="card-title">Disk I/O CO2</span>
-                        <i class="fas fa-cloud"></i>
-                    </div>
-                    <div class="card-value" id="diskIOCO2"></div>
-                </div>
-            </div>
-
-            <!-- Storage Information Section -->
-            <div class="section-title">
-                <i class="fas fa-database"></i>
-                Storage Information 
-            </div>
-            <div class="grid-container">
-                <div class="info-card">
-                    <div class="card-header">
-                        <span class="card-title">Storage Device Count</span>
-                        <i class="fas fa-hdd"></i>
-                    </div>
-                    <div class="card-value" id="storageDeviceCount"></div>
-                    <div class="card-subvalue" id="storageDevices"></div>
-                </div>
-            </div>
+        <div class="no-data-message" id="noDataMessage" style="display: none;">
+            <i class="fas fa-info-circle"></i>
+            <p>No data available for the selected Solution Directory.</p>
         </div>
     </div>
-
-    <script type="application/json" id="serverDetailsData">
-        {{ server_details | safe }}
+    
+    <script type="text/template" id="beforeData">
+        {{ before_details | tojson }}
     </script>
-
+    <script type="text/template" id="afterData">
+        {{ after_details | tojson }}
+    </script>
     <script>
-        // Helper function to format small numbers
-        function formatSmallNumber(number) {
-            if (number < 0.001) {
-                // Convert scientific notation to a fixed number of decimal places
-                return (number * 1000000).toFixed(4) + ' µg'; // Convert to micrograms
-            } else if (number < 1) {
-                // For numbers less than 1 but greater than 0.001
-                return (number * 1000).toFixed(4) + ' mg'; // Convert to milligrams
-            } else {
-                // For numbers greater than or equal to 1
-                return number.toFixed(4) + ' g';
-            }
-        }
-
-        let serverData;
-        serverData = JSON.parse(document.getElementById('serverDetailsData').textContent);
-        
         $(document).ready(function(){
+            function escapeHtml(text) {
+                const map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return text.toString().replace(/[&<>"']/g, m => map[m]);
+            }
+
             $('#solutionDirSelect').on('change', function(){
-                const selectedHostname = $(this).val();
+                const selectedDir = $(this).val();
                 
-                if(selectedHostname) {
-                    const serverDetails = serverData.find(server => server.hostname === selectedHostname);
+                // Reset display
+                $('#beforeTableBox, #afterTableBox').hide().removeClass('show');
+                $('#noDataMessage').hide().removeClass('show');
+                
+                if(selectedDir){
+                    const beforeData = JSON.parse(document.getElementById('beforeData').textContent);
+                    const afterData = JSON.parse(document.getElementById('afterData').textContent);
                     
-                    if(serverDetails) {
-                        // Update UI elements
-                        $('#selectedServerName').text(selectedHostname);
+                    const filteredBefore = beforeData.filter(item => item['solution dir'] === selectedDir);
+                    const filteredAfter = afterData.filter(item => item['solution dir'] === selectedDir);
+                    
+                    if(filteredBefore.length > 0 || filteredAfter.length > 0){
+                        if(filteredBefore.length > 0){
+                            const beforeTableBody = filteredBefore.map(row => `
+                                <tr>
+                                    <td>${escapeHtml(row['Application name'])}</td>
+                                    <td>${escapeHtml(row['File Type'])}</td>
+                                    <td>${escapeHtml(row['Duration'])}</td>
+                                    <td>${escapeHtml(row['Emissions (gCO2eq)'])}</td>
+                                    <td>${escapeHtml(row['Energy Consumed (Wh)'])}</td>
+                                </tr>
+                            `).join('');
+                            
+                            $('#beforeTableBox tbody').html(beforeTableBody);
+                            $('#beforeTableBox').show().addClass('show');
+                        }
                         
-                        // Operating System Section
-                        $('#osVersion').text(serverDetails.os_version);
-                        $('#osType').text(serverDetails.os_type);
-                        $('#region').text(serverDetails.region);
-                        
-                        // Server Information Section - Using the new formatting function
-                        $('#totalCO2').text(formatSmallNumber(serverDetails.total_co2));
-                        $('#cpuCO2').text(`CPU CO2: ${formatSmallNumber(serverDetails.cpu_co2)}`);
-                        $('#ramCO2').text(formatSmallNumber(serverDetails.ram_co2));
-                        $('#co2Factor').text(`CO2 Factor: ${serverDetails.co2_factor}`);
-                        
-                        // RAM Information
-                        $('#ramTotal').text(`${serverDetails.ram_total.toFixed(2)}GB`);
-                        $('#ramUsage').text(`Used: ${serverDetails.ram_used.toFixed(2)}GB (${serverDetails.ram_percent.toFixed(2)}%)`);
-                        
-                        // Power Information
-                        $('#totalPower').text(`${serverDetails.total_power.toFixed(2)}W`);
-                        $('#powerDetails').text(`CPU: ${serverDetails.cpu_power.toFixed(2)}W, RAM: ${serverDetails.ram_power.toFixed(2)}W`);
-                        
-                        // Disk Information
-                        $('#diskRead').text(`${(serverDetails.disk_read_bytes / (1024 * 1024)).toFixed(2)}MB/s`);
-                        $('#diskWrite').text(`${(serverDetails.disk_write_bytes / (1024 * 1024)).toFixed(2)}MB/s`);
-                        $('#diskBaseCO2').text(formatSmallNumber(serverDetails.disk_base_co2));
-                        $('#diskIOCO2').text(formatSmallNumber(serverDetails.disk_io_co2));
-                        
-                        // Storage Information
-                        $('#storageDeviceCount').text(serverDetails.storage_device_count);
-                        $('#storageDevices').text(`Devices: ${serverDetails.storage_devices}`);
-                        
-                        $('#serverDetails').show();
+                        if(filteredAfter.length > 0){
+                            const afterTableBody = filteredAfter.map(row => `
+                                <tr>
+                                    <td>${escapeHtml(row['Application name'])}</td>
+                                    <td>${escapeHtml(row['File Type'])}</td>
+                                    <td>${escapeHtml(row['Duration'])}</td>
+                                    <td>${escapeHtml(row['Emissions (gCO2eq)'])}</td>
+                                    <td>${escapeHtml(row['Energy Consumed (Wh)'])}</td>
+                                </tr>
+                            `).join('');
+                            
+                            $('#afterTableBox tbody').html(afterTableBody);
+                            $('#afterTableBox').show().addClass('show');
+                        }
                     } else {
-                        console.error('No server details found for hostname:', selectedHostname);
+                        $('#noDataMessage').show().addClass('show');
                     }
-                } else {
-                    $('#serverDetails').hide();
                 }
             });
         });
